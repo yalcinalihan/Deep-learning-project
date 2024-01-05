@@ -90,6 +90,7 @@ def read_license_plate(license_plate_crop):
         if license_complies_format(text):
             return text, score
 
+        uppercase_text = text.upper()
     return None, None
 
 
