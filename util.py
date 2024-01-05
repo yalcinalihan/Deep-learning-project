@@ -68,13 +68,24 @@ def license_complies_format(text):
 
 
 def read_license_plate(license_plate_crop):
-
     detections = reader.readtext(license_plate_crop)
 
     for detection in detections:
         bbox, text, score = detection
 
-        text = text.upper().replace(' ', '')
+        # Replace specific and other non-alphanumeric characters with placeholders
+        placeholders = {
+            ' ': '',
+            '.': 'I',
+            ',': '7',
+            '!': 'X', '@': 'Y', '#': 'Z', '$': 'W', '%': 'V',
+            '^': 'U', '&': 'T', '*': 'S', '(': 'R', ')': 'Q',
+            '-': 'P', '_': 'O', '=': 'N', '+': 'M', '[': 'L',
+            ']': 'K', '{': 'J', '}': 'I', ';': 'H', ':': 'G',
+            '"': 'F', "'": 'E', '<': 'D', '>': 'C', '?': 'B',
+            '/': 'A', '\\': '1', '|': '2', '`': '3', '~': '4'
+        }
+        text = ''.join(placeholders.get(char, char) for char in text if char.isalnum() or char in placeholders)
 
         if license_complies_format(text):
             return text, score
