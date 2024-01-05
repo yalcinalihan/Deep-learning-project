@@ -3,8 +3,7 @@ import csv
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, QHBoxLayout, QStackedWidget
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QColor
-from datetime import datetime
-
+from datetime import datetime, timedelta  # Added timedelta for time calculation
 
 
 class MyApp(QWidget):
@@ -12,13 +11,11 @@ class MyApp(QWidget):
         super().__init__()
 
         # Set up the main window
-        self.setGeometry(100, 100, 600, 600)
-        self.setWindowTitle('Parking Lot Manager')
+        self.setGeometry(100, 100, 730, 530)
+        self.setWindowTitle('Parking Lot Manager (Hourly rate: $5.00)')
 
-        # Create a vertical layout
         main_layout = QVBoxLayout(self)
 
-        # Create buttons for switching between screens
         button_layout = QHBoxLayout()
 
         self.entry_management_button = QPushButton('Entry Management', self)
@@ -31,27 +28,33 @@ class MyApp(QWidget):
 
         main_layout.addLayout(button_layout)
 
-        # Create a stacked widget to hold different screens
         self.stacked_widget = QStackedWidget(self)
         main_layout.addWidget(self.stacked_widget)
 
-        # Create the Entry Management screen
         self.entry_management_screen = QWidget()
         self.setup_entry_management_screen()
         self.stacked_widget.addWidget(self.entry_management_screen)
 
-        # Create the Empty Space Management screen
         self.empty_space_management_screen = QWidget()
         self.setup_empty_space_management_screen()
         self.stacked_widget.addWidget(self.empty_space_management_screen)
 
-        # Set up a QTimer to refresh CSV data every 10 milliseconds
         self.csv_refresh_timer = QTimer(self)
         self.csv_refresh_timer.timeout.connect(self.update_csv_data)
-        self.csv_refresh_timer.start(10)
+        self.csv_refresh_timer.start(50)
 
         # Show the GUI
         self.show()
+
+    def calculate_time_spent(self, entry_datetime):
+        if entry_datetime:
+            entry_time = datetime.strptime(entry_datetime, '%Y-%m-%d %H:%M:%S.%f')
+
+            current_time = datetime.now()
+            time_spent = current_time - entry_time
+            return str(time_spent).split(".")[0]  # Format as %H:%M
+
+        return "N/A"
 
     def setup_entry_management_screen(self):
         # Load data from the CSV file
@@ -65,8 +68,11 @@ class MyApp(QWidget):
         layout.addWidget(list_widget)
 
         # Populate the QListWidget with data
-        for car_id, (license_number, score) in data.items():
-            item_text = f"Car ID: {car_id}, License Number: {license_number}, Score: {score}"
+        for car_id, (license_number, score, entry_datetime) in data.items():
+            # Calculate time spent in the parking lot
+            time_spent = self.calculate_time_spent(entry_datetime)
+
+            item_text = f"Car ID: {car_id}, License Number: {license_number}, Score: {score}, Entry Time: {entry_datetime[:-7]}, Time Spent: {time_spent}, Cost:{0}"
             list_widget.addItem(item_text)
 
     def load_csv_data(self, filename):
@@ -78,15 +84,13 @@ class MyApp(QWidget):
                     car_id = row['car_id']
                     license_number = row['license_number']
                     score = float(row['license_number_score'])
+                    entry_datetime = row.get('datetime', '')  # Added datetime column
 
                     if car_id not in data or score > data[car_id][1]:
-                        data[car_id] = (license_number, score)
+                        data[car_id] = (license_number, score, entry_datetime)
         except Exception as e:
             print(f"Error loading CSV file: {e}")
 
-        for i in range(3):
-            if str(i) not in data:
-                data[str(i)] = ('0', 0.0)
 
         return data
 
@@ -141,9 +145,32 @@ class MyApp(QWidget):
         list_widget = self.entry_management_screen.findChild(QListWidget)
         list_widget.clear()
 
-        for car_id, (license_number, score) in data.items():
-            item_text = f"Car ID: {car_id}, License Number: {license_number}, Score: {score}"
+        for car_id, (license_number, score, entry_datetime) in data.items():
+            # Calculate time spent in the parking lot
+            time_spent = self.calculate_time_spent(entry_datetime)
+
+            date_string = entry_datetime
+
+
+            date_format = "%Y-%m-%d %H:%M:%S.%f"
+
+            date_object = datetime.strptime(date_string, date_format)
+
+            formatted_date = date_object.strftime("%Y-%m-%d %H:%M")
+
+
+            dollars = 0
+            input_string = time_spent
+            split_values = input_string.split(':')
+            if len(split_values) == 3:
+                result = int(split_values[0]) * 5
+                dollars = result
+            else:
+                dollars = 0
+
+            item_text = f"Car ID: {car_id}, License Number: {license_number}, Score: {score}, Entry Time: {formatted_date}, Time Spent: {time_spent}, Cost: ${dollars}"
             list_widget.addItem(item_text)
+
 
     def update_empty_space_management_screen(self, empty_space_data):
         # Update Empty Space Management screen with new data
