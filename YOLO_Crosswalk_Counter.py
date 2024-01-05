@@ -52,7 +52,6 @@ while cap.isOpened():
                     # people count
                     people_count_in_polygon += 1
 
-                    # Bounding Box on the original frame
                     w, h = x2 - x1, y2 - y1
                     pt1 = (int(x1), int(y1))
                     pt2 = (int(x2), int(y2))

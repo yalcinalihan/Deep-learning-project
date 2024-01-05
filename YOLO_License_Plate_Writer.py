@@ -8,17 +8,15 @@ results = {}
 
 mot_tracker = Sort()
 
-# Load models
 Yolo_Model = YOLO('../Yolo-Weights/yolov8l.pt')
 license_plate_confidence_threshold = 0.45 # Set the initial confidence threshold
 license_plate_detector = YOLO("../Yolo-Weights/LicencePlate.pt")
 
-# Load video
+
 cap = cv2.VideoCapture('./parkinglot8.mp4')
 
 vehicles = [2, 3, 5, 7]  # car, bus, truck, motorbike from coco
 
-# Read frames
 frame_nmr = -1
 ret = True
 while ret:
@@ -41,12 +39,11 @@ while ret:
             # Track vehicles
             track_ids = mot_tracker.update(np.asarray(detections_))
 
-            # Detect license plates
             license_plates = license_plate_detector(frame)[0]
             for license_plate in license_plates.boxes.data.tolist():
                 x1, y1, x2, y2, score, class_id = license_plate
 
-                # Apply confidence threshold for license plate detection
+                #confidence threshold for license plate detection
                 if score >= license_plate_confidence_threshold:
                     # Assign license plate to car
                     xcar1, ycar1, xcar2, ycar2, car_id = get_car(license_plate, track_ids)
@@ -55,7 +52,6 @@ while ret:
                         # Crop license plate
                         license_plate_crop = frame[int(y1):int(y2), int(x1): int(x2), :]
 
-                        # Process license plate
                         license_plate_crop_gray = cv2.cvtColor(license_plate_crop, cv2.COLOR_BGR2GRAY)
                         _, license_plate_crop_thresh = cv2.threshold(license_plate_crop_gray, 64, 255,
                                                                         cv2.THRESH_BINARY_INV)
@@ -70,7 +66,7 @@ while ret:
                                                                             'bbox_score': score,
                                                                             'text_score': license_plate_text_score}}
 
-                            # Draw bounding box for license plates
+                            
                             cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255), 2)
                             # Display license plate text
                             cv2.putText(frame, license_plate_text, (int(x1), int(y1) - 10),
@@ -85,9 +81,8 @@ while ret:
         print(e)
         continue
 
-# Write results
-write_csv(results, './test.csv')
+write_csv(results, './license_plates.csv')
 
-# Release the video capture and close all windows
+
 cap.release()
 cv2.destroyAllWindows()
