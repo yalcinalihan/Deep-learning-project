@@ -41,7 +41,7 @@ class ParkingLotApp(QWidget):
 
         btn_run_processes.setStyleSheet("color: black; background-image: url(parking_lot.jpg)")
         btn_parking_lot_entrance.setStyleSheet("color: white; background-image: url(parking_lot_entrance.jpg)")
-        btn_crosswalk_light_manager.setStyleSheet("white: white; background-image: url(crosswalk.jpg)")
+        btn_crosswalk_light_manager.setStyleSheet("color: black; background-image: url(crosswalk.jpg)")
         btn_close_processes.setStyleSheet("color: black; background-image: url(red_no_symbol.png)")
 
 
@@ -62,16 +62,16 @@ class ParkingLotApp(QWidget):
         self.setLayout(main_layout)
 
     def run_processes(self):
-        self.processes.append(Popen(["python", "Yolo_Parking_Lot.py"], creationflags=CREATE_NEW_CONSOLE))
+        self.processes.append(Popen(["python", "YOLO_Parking_Lot_Space_Detection.py"], creationflags=CREATE_NEW_CONSOLE))
         self.processes.append(Popen(["python", "GUI_parking_lot_manager.py"], creationflags=CREATE_NEW_CONSOLE))
 
     def run_parking_lot_entrance(self):
-        self.processes.append(Popen(["python", "YOLO_License_Plate.py"], creationflags=CREATE_NEW_CONSOLE | CREATE_NO_WINDOW))
+        self.processes.append(Popen(["python", "YOLO_License_Plate_Writer.py"], creationflags=CREATE_NEW_CONSOLE | CREATE_NO_WINDOW))
         self.processes.append(Popen(["python", "GUI_parking_lot_manager.py"], creationflags=CREATE_NEW_CONSOLE | CREATE_NO_WINDOW))
 
     def run_crosswalk_light_manager(self):
         self.processes.append(Popen(["python", "Yolo_Crosswalk_Counter.py"], creationflags=CREATE_NEW_CONSOLE))
-        self.processes.append(Popen(["python", "GUI_traffic_lights.py"], creationflags=CREATE_NEW_CONSOLE | CREATE_NO_WINDOW))
+        self.processes.append(Popen(["python", "GUI_Traffic_Light_Manager.py"], creationflags=CREATE_NEW_CONSOLE | CREATE_NO_WINDOW))
 
     def close_processes(self):
         for process in self.processes:
