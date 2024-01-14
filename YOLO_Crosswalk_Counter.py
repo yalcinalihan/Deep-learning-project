@@ -3,7 +3,7 @@ import numpy as np
 from ultralytics import YOLO
 
 
-model = YOLO("../Yolo-Weights/AerialHuman.pt")
+model = YOLO("Yolo-Weights\AerialHuman.pt")
 
 
 video_path = "aerialview2.mp4"  # Change the video file name

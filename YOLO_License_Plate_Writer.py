@@ -8,9 +8,9 @@ results = {}
 
 mot_tracker = Sort()
 
-Yolo_Model = YOLO('../Yolo-Weights/yolov8l.pt')
+Yolo_Model = YOLO('yolov8l.pt')
 license_plate_confidence_threshold = 0.45 # Set the initial confidence threshold
-license_plate_detector = YOLO("../Yolo-Weights/LicencePlate.pt")
+license_plate_detector = YOLO("Yolo-Weights\LicencePlate.pt")
 
 
 cap = cv2.VideoCapture('./parkinglot8.mp4')
